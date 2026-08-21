@@ -740,12 +740,14 @@
   /* ── SCROLL REVEAL (visible by default; JS opts in) ── */
   html.js .reveal {
     opacity: 0;
-    transform: translateY(32px);
-    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    transform: translateY(64px) scale(0.94);
+    filter: blur(8px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1), filter 0.9s cubic-bezier(0.16,1,0.3,1);
   }
   html.js .reveal.in-view {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
   html.js .pillars-grid .reveal:nth-child(2) { transition-delay: 0.1s; }
   html.js .pillars-grid .reveal:nth-child(3) { transition-delay: 0.2s; }
@@ -857,21 +859,177 @@
   .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
   .back-to-top:hover { border-color: var(--accent); }
 
+  /* ── AMBIENT AURORA (ever-present drift, brand-toned) ── */
+  .aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .aurora span {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.1;
+  }
+  .aurora span:nth-child(1) {
+    width: 640px; height: 640px;
+    top: -12%; left: 8%;
+    background: radial-gradient(circle, var(--accent), transparent 70%);
+    animation: driftA 26s ease-in-out infinite;
+  }
+  .aurora span:nth-child(2) {
+    width: 520px; height: 520px;
+    bottom: -10%; right: 6%;
+    background: radial-gradient(circle, #ffffff, transparent 70%);
+    animation: driftB 32s ease-in-out infinite;
+  }
+  .aurora span:nth-child(3) {
+    width: 420px; height: 420px;
+    top: 40%; left: 55%;
+    background: radial-gradient(circle, var(--accent), transparent 70%);
+    animation: driftC 22s ease-in-out infinite;
+  }
+  @keyframes driftA {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(60px,80px) scale(1.15); }
+  }
+  @keyframes driftB {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-70px,-50px) scale(1.1); }
+  }
+  @keyframes driftC {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-40px,60px) scale(0.9); }
+  }
+
+  /* ── ANIMATED GRID PAN ── */
+  html.js body::before {
+    animation: gridPan 40s linear infinite;
+  }
+  @keyframes gridPan {
+    to { background-position: 80px 80px, 80px 80px; }
+  }
+
+  /* ── LIVE PULSE INDICATOR ── */
+  .live-pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff2d2d;
+    box-shadow: 0 0 0 0 rgba(255,45,45,0.6);
+    animation: livePulse 2s ease-out infinite;
+  }
+  @keyframes livePulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,45,45,0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(255,45,45,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,45,45,0); }
+  }
+
+  /* ── MARQUEE TICKER ── */
+  .ticker {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(200,169,110,0.2);
+    border-bottom: 1px solid rgba(200,169,110,0.2);
+    background: rgba(200,169,110,0.03);
+    overflow: hidden;
+    padding: 18px 0;
+    white-space: nowrap;
+  }
+  .ticker-track {
+    display: inline-flex;
+    animation: tickerScroll 32s linear infinite;
+  }
+  .ticker-track span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .ticker-track span::after { content: '◆'; color: var(--accent); font-size: 0.6rem; }
+  @keyframes tickerScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── CUSTOM CURSOR (fine pointer + motion allowed) ── */
+  html.custom-cursor, html.custom-cursor * { cursor: none !important; }
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    left: 0; top: 0;
+    pointer-events: none;
+    z-index: 400;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--white);
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--accent);
+    will-change: left, top, width, height;
+    transition: opacity 0.3s ease, width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
+  }
+  .cursor-dot.active, .cursor-ring.active { opacity: 1; }
+  .cursor-ring.hovering {
+    width: 64px;
+    height: 64px;
+    border-color: #fff;
+    background: rgba(200,169,110,0.08);
+  }
+
+  /* ── HERO PARALLAX (wrappers carry scroll transform; inner elements keep their own animations) ── */
+  html.js .globe-parallax,
+  html.js .hero-copy-parallax {
+    will-change: transform;
+  }
+  html.js .hero { will-change: opacity; }
+
   /* ── REDUCED MOTION ── */
   @media (prefers-reduced-motion: reduce) {
-    html.js .reveal { opacity: 1; transform: none; transition: none; }
+    html.js .reveal { opacity: 1; transform: none; filter: none; transition: none; }
     .globe-container { animation: none; }
     html.js .globe-rotate { animation: none; }
     .cursor-glow { display: none; }
     .btn, .pillar { transition: none !important; }
     html { scroll-behavior: auto; }
+    .aurora span, .live-dot, .ticker-track { animation: none !important; }
+    html.js body::before { animation: none !important; }
+    .cursor-dot, .cursor-ring { display: none !important; }
+    html.custom-cursor, html.custom-cursor * { cursor: auto !important; }
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .cursor-dot, .cursor-ring { display: none !important; }
   }
 </style>
 </head>
 <body>
 
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
 <div class="scroll-progress" id="scrollProgress"></div>
 <div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
 
 <!-- NAV -->
 <nav>
@@ -891,6 +1049,7 @@
 
 <!-- HERO -->
 <section class="hero">
+  <div class="globe-parallax">
   <div class="globe-container">
     <svg class="globe-svg" viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -938,8 +1097,10 @@
       </text>
     </svg>
   </div>
+  </div>
 
-  <p class="hero-eyebrow">English · 한국어 · 日本語 · Русский · 中文</p>
+  <div class="hero-copy-parallax">
+  <p class="hero-eyebrow"><span class="live-pulse"><span class="live-dot"></span>LIVE</span> &nbsp;·&nbsp; English · 한국어 · 日本語 · Русский · 中文</p>
   <h1 class="hero-title">
     <span data-en="Facts," data-kr="사실만,">Facts,</span>
     <span data-en="not opinions." data-kr="의견은 없습니다.">not opinions.</span>
@@ -951,7 +1112,16 @@
     <a href="#mission" class="btn btn-primary" data-en="Our Mission" data-kr="우리의 미션">Our Mission</a>
     <a href="#follow" class="btn btn-outline" data-en="Follow on Instagram" data-kr="인스타그램 팔로우">Follow on Instagram</a>
   </div>
+  </div>
 </section>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>POLITICS</span><span>CONFLICT</span><span>ECONOMY</span><span>DIPLOMACY</span><span>SOCIETY</span><span>MILITARY</span><span>INTEL</span>
+    <span>POLITICS</span><span>CONFLICT</span><span>ECONOMY</span><span>DIPLOMACY</span><span>SOCIETY</span><span>MILITARY</span><span>INTEL</span>
+  </div>
+</div>
 
 <!-- MISSION -->
 <section class="mission" id="mission">
@@ -1268,15 +1438,46 @@
     sections.forEach(s => navObserver.observe(s));
   }
 
-  // ── Cursor glow + magnetic buttons + pillar tilt (pointer devices, motion allowed) ──
+  // ── Cursor glow + custom cursor + magnetic buttons + pillar tilt (pointer devices, motion allowed) ──
   if (finePointer && !reduceMotion) {
+    document.documentElement.classList.add('custom-cursor');
+
     const glow = document.getElementById('cursorGlow');
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mouseX = -1000, mouseY = -1000;
+    let ringX = -1000, ringY = -1000;
+
     document.addEventListener('mousemove', (e) => {
-      glow.style.left = e.clientX + 'px';
-      glow.style.top = e.clientY + 'px';
+      mouseX = e.clientX; mouseY = e.clientY;
+      glow.style.left = mouseX + 'px';
+      glow.style.top = mouseY + 'px';
       glow.classList.add('active');
+      dot.style.left = mouseX + 'px';
+      dot.style.top = mouseY + 'px';
+      dot.classList.add('active');
+      ring.classList.add('active');
     }, { passive: true });
-    document.addEventListener('mouseleave', () => glow.classList.remove('active'));
+    document.addEventListener('mouseleave', () => {
+      glow.classList.remove('active');
+      dot.classList.remove('active');
+      ring.classList.remove('active');
+    });
+
+    // Ring trails the dot with easing, driven by rAF
+    function tickCursor() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      ring.style.left = ringX + 'px';
+      ring.style.top = ringY + 'px';
+      requestAnimationFrame(tickCursor);
+    }
+    requestAnimationFrame(tickCursor);
+
+    document.querySelectorAll('a, button, .pillar, .offering-item').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+    });
 
     document.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('mousemove', (e) => {
@@ -1297,6 +1498,30 @@
       });
       card.addEventListener('mouseleave', () => { card.style.transform = ''; });
     });
+  }
+
+  // ── Hero parallax (scroll-linked, layered depth) ──
+  // Wrapper elements carry the scroll transform so they never fight the
+  // CSS `float`/`fadeUp` keyframe animations already running on their children
+  // (an animated element's own transform always wins over one set from JS).
+  if (!reduceMotion) {
+    const globeLayer = document.querySelector('.globe-parallax');
+    const copyLayer = document.querySelector('.hero-copy-parallax');
+    const heroSection = document.querySelector('.hero');
+    let lastY = -1;
+    function tickParallax() {
+      const y = window.scrollY;
+      if (y !== lastY && heroSection) {
+        const heroH = heroSection.offsetHeight || 800;
+        const p = Math.min(y / heroH, 1); // 0 → 1 across the hero's height
+        if (globeLayer) globeLayer.style.transform = `translateY(${y * 0.35}px) scale(${1 - p * 0.08})`;
+        if (copyLayer) copyLayer.style.transform = `translateY(${y * 0.18}px)`;
+        heroSection.style.opacity = Math.max(1 - p * 1.3, 0);
+        lastY = y;
+      }
+      requestAnimationFrame(tickParallax);
+    }
+    requestAnimationFrame(tickParallax);
   }
 </script>
 </body>
