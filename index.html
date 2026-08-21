@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>document.documentElement.classList.add('js');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOPS — No Opinions Society</title>
@@ -702,15 +703,180 @@
     .timeline::before { display: none; }
     .timeline-item { grid-template-columns: 1fr; }
     .timeline-marker { display: none; }
+    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+  }
+
+  /* ── SCROLL PROGRESS BAR ── */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), #fff);
+    z-index: 300;
+    will-change: width;
+  }
+
+  /* ── CURSOR GLOW (pointer devices only) ── */
+  .cursor-glow {
+    position: fixed;
+    width: 460px;
+    height: 460px;
+    left: -1000px;
+    top: -1000px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.07), transparent 70%);
+    pointer-events: none;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    will-change: left, top, opacity;
+  }
+  .cursor-glow.active { opacity: 1; }
+
+  /* ── SCROLL REVEAL (visible by default; JS opts in) ── */
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  }
+  html.js .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  html.js .pillars-grid .reveal:nth-child(2) { transition-delay: 0.1s; }
+  html.js .pillars-grid .reveal:nth-child(3) { transition-delay: 0.2s; }
+  html.js .offerings-list .reveal:nth-child(2) { transition-delay: 0.08s; }
+  html.js .offerings-list .reveal:nth-child(3) { transition-delay: 0.16s; }
+  html.js .offerings-list .reveal:nth-child(4) { transition-delay: 0.24s; }
+  html.js .timeline .reveal:nth-child(2) { transition-delay: 0.1s; }
+  html.js .timeline .reveal:nth-child(3) { transition-delay: 0.2s; }
+  html.js .timeline .reveal:nth-child(4) { transition-delay: 0.3s; }
+  html.js .follow-inner .reveal:nth-child(2) { transition-delay: 0.12s; }
+
+  /* ── SECTION SCROLL ANCHORS ── */
+  section[id] { scroll-margin-top: 96px; }
+
+  /* ── GLOBE ROTATION ── */
+  html.js .globe-rotate {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: globeSpin 50s linear infinite;
+  }
+  @keyframes globeSpin { to { transform: rotate(360deg); } }
+
+  /* ── PILLAR TILT ── */
+  .pillar { transition: background 0.3s, transform 0.25s ease, box-shadow 0.4s ease; transform-style: preserve-3d; will-change: transform; }
+
+  /* ── MAGNETIC BUTTONS ── */
+  .btn { will-change: transform; }
+
+  /* ── NAV ACTIVE LINK ── */
+  .nav-links a { position: relative; }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 0%;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover::after,
+  .nav-links a.active::after { width: 100%; }
+  .nav-links a.active { color: var(--white); }
+
+  /* ── MOBILE NAV TOGGLE ── */
+  .nav-toggle {
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  @media (min-width: 769px) {
+    .nav-toggle { display: none; }
+  }
+  .nav-toggle span {
+    display: block;
+    height: 1px;
+    width: 100%;
+    background: var(--white);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      position: fixed;
+      inset: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      background: rgba(10,10,10,0.98);
+      backdrop-filter: blur(16px);
+      transform: translateY(-100%);
+      transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+      z-index: 99;
+    }
+    .nav-links.open { transform: translateY(0); }
+    .nav-links a { font-size: 1rem; }
+  }
+
+  /* ── BACK TO TOP ── */
+  .back-to-top {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(200,169,110,0.3);
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(8px);
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 150;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  }
+  .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+  .back-to-top:hover { border-color: var(--accent); }
+
+  /* ── REDUCED MOTION ── */
+  @media (prefers-reduced-motion: reduce) {
+    html.js .reveal { opacity: 1; transform: none; transition: none; }
+    .globe-container { animation: none; }
+    html.js .globe-rotate { animation: none; }
+    .cursor-glow { display: none; }
+    .btn, .pillar { transition: none !important; }
+    html { scroll-behavior: auto; }
   }
 </style>
 </head>
 <body>
 
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+
 <!-- NAV -->
 <nav>
   <div class="nav-logo">NOPS</div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="navLinks">
     <li><a href="#mission" data-en="Mission" data-kr="미션">Mission</a></li>
     <li><a href="#pillars" data-en="Principles" data-kr="핵심 가치">Principles</a></li>
     <li><a href="#offerings" data-en="Content" data-kr="콘텐츠">Content</a></li>
@@ -718,6 +884,9 @@
     <li><a href="#follow" data-en="Follow" data-kr="팔로우">Follow</a></li>
   </ul>
   <button class="lang-toggle" id="langToggle" onclick="toggleLang()">한국어</button>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -737,7 +906,7 @@
       <ellipse cx="260" cy="110" rx="240" ry="106" fill="none" stroke="#c0c0c0" stroke-width="0.8" opacity="0.6"/>
       <ellipse cx="260" cy="110" rx="238" ry="104" fill="url(#globeGrad)"/>
       <!-- Longitude lines -->
-      <g clip-path="url(#globeClip)" fill="none" stroke="#c0c0c0" stroke-width="0.5" opacity="0.3">
+      <g class="globe-rotate" clip-path="url(#globeClip)" fill="none" stroke="#c0c0c0" stroke-width="0.5" opacity="0.3">
         <ellipse cx="260" cy="110" rx="40" ry="104"/>
         <ellipse cx="260" cy="110" rx="100" ry="104"/>
         <ellipse cx="260" cy="110" rx="160" ry="104"/>
@@ -787,7 +956,7 @@
 <!-- MISSION -->
 <section class="mission" id="mission">
   <div class="section-inner">
-    <div class="mockup-card" id="nopsMockup">
+    <div class="mockup-card reveal" id="nopsMockup">
       <div class="mockup-header">
         <div class="mockup-logo" id="mockupLogo">NOPS</div>
         <div class="mockup-type" id="mockupType">NEWS</div>
@@ -841,7 +1010,7 @@
 <!-- MANIFESTO -->
 <section class="manifesto">
   <div class="manifesto-inner">
-    <blockquote data-en="Opinion Creates Opposition, Opposition Creates Conflict. What if there is no Opinion?" data-kr="의견은 반대를 만들고, 반대는 갈등을 만듭니다. 만약 의견이 없다면 어떨까요?">
+    <blockquote class="reveal" data-en="Opinion Creates Opposition, Opposition Creates Conflict. What if there is no Opinion?" data-kr="의견은 반대를 만들고, 반대는 갈등을 만듭니다. 만약 의견이 없다면 어떨까요?">
       Opinion Creates Opposition, Opposition Creates Conflict. What if there is no Opinion?
     </blockquote>
   </div>
@@ -853,19 +1022,19 @@
     <p class="section-label" data-en="Core Values" data-kr="핵심 가치">Core Values</p>
     <h2 class="section-title" data-en="The NOPS Standard" data-kr="NOPS의 기준">The NOPS Standard</h2>
     <div class="pillars-grid">
-      <div class="pillar" style="border-color: #ff2d2d; box-shadow: 0 0 16px rgba(255,45,45,0.1);">
+      <div class="pillar reveal" style="border-color: #ff2d2d; box-shadow: 0 0 16px rgba(255,45,45,0.1);">
         <span class="pillar-num" style="color: rgba(255,45,45,0.15);">01</span>
         <span class="pillar-icon">⬛</span>
         <h3 style="color:#ff2d2d;">No Opinions</h3>
         <p data-en="We report what happened, not what we think about it. Every piece is stripped of commentary, conjecture, and bias — just the verifiable record." data-kr="우리는 일어난 일을 보도합니다, 우리의 생각이 아닙니다. 모든 기사는 논평, 추측, 편견 없이 — 오직 검증 가능한 사실만 담습니다.">We report what happened, not what we think about it. Every piece is stripped of commentary, conjecture, and bias — just the verifiable record.</p>
       </div>
-      <div class="pillar" style="border-color: #00c853; box-shadow: 0 0 16px rgba(0,200,83,0.1);">
+      <div class="pillar reveal" style="border-color: #00c853; box-shadow: 0 0 16px rgba(0,200,83,0.1);">
         <span class="pillar-num" style="color: rgba(0,200,83,0.15);">02</span>
         <span class="pillar-icon">◈</span>
         <h3 style="color:#00c853;">No Opposition</h3>
         <p data-en="We do not take sides. Political parties, ideologies, and movements are reported as they act — not as heroes or villains in our narrative." data-kr="우리는 편을 가르지 않습니다. 정당, 이념, 사회 운동을 우리의 서사 속 영웅이나 악당으로 묘사하지 않으며, 오직 그들의 행동을 있는 그대로 전달합니다.">We do not take sides. Political parties, ideologies, and movements are reported as they act — not as heroes or villains in our narrative.</p>
       </div>
-      <div class="pillar" style="border-color: #b44fff; box-shadow: 0 0 16px rgba(180,79,255,0.1);">
+      <div class="pillar reveal" style="border-color: #b44fff; box-shadow: 0 0 16px rgba(180,79,255,0.1);">
         <span class="pillar-num" style="color: rgba(180,79,255,0.15);">03</span>
         <span class="pillar-icon">◉</span>
         <h3 style="color:#b44fff;">Full Context</h3>
@@ -881,7 +1050,7 @@
     <p class="section-label" data-en="Content" data-kr="콘텐츠">Content</p>
     <h2 class="section-title" data-en="What we publish" data-kr="우리가 발행하는 것">What we publish</h2>
     <div class="offerings-list">
-      <div class="offering-item">
+      <div class="offering-item reveal">
         <div class="offering-tag">Instagram</div>
         <div class="offering-text">
           <h3>NOPS News</h3>
@@ -890,7 +1059,7 @@
         </div>
         <div class="offering-arrow">→</div>
       </div>
-      <div class="offering-item">
+      <div class="offering-item reveal">
         <div class="offering-tag">Instagram</div>
         <div class="offering-text">
           <h3>NOPS_INTEL</h3>
@@ -898,7 +1067,7 @@
         </div>
         <div class="offering-arrow">→</div>
       </div>
-      <div class="offering-item" style="opacity: 0.5;">
+      <div class="offering-item reveal" style="opacity: 0.5;">
         <div class="offering-tag" data-en="Coming Soon" data-kr="출시 예정" style="opacity:0.6">Coming Soon</div>
         <div class="offering-text">
           <h3>NOPS_Report <span style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--accent); font-style:normal;">· Instagram</span></h3>
@@ -906,7 +1075,7 @@
         </div>
         <div class="offering-arrow" style="opacity:0.3">→</div>
       </div>
-      <div class="offering-item" style="opacity: 0.5;">
+      <div class="offering-item reveal" style="opacity: 0.5;">
         <div class="offering-tag" data-en="Coming Soon" data-kr="출시 예정" style="opacity:0.6">Coming Soon</div>
         <div class="offering-text">
           <h3>NOPS Map <span style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--accent); font-style:normal;">· $15/mo</span></h3>
@@ -924,7 +1093,7 @@
     <p class="section-label" data-en="Roadmap" data-kr="로드맵">Roadmap</p>
     <h2 class="section-title" data-en="Where we are going" data-kr="우리가 나아가는 방향">Where we are going</h2>
     <div class="timeline">
-      <div class="timeline-item">
+      <div class="timeline-item reveal">
         <div class="timeline-marker">
           <div class="timeline-dot active"></div>
           <div class="timeline-phase" data-en="Now" data-kr="현재">Now</div>
@@ -935,7 +1104,7 @@
           <p data-en="Establishing NOPS News on Instagram in English and Korean. Publishing precise, unbiased reporting across Politics, International Relations, Economics, Trade, Society, Diplomacy, and Military affairs." data-kr="영어와 한국어로 인스타그램에 NOPS News를 개설합니다. 정치, 국제 관계, 경제, 무역, 사회, 외교, 군사 분야에 걸쳐 정확하고 편견 없는 보도를 발행합니다.">Establishing NOPS News on Instagram in English and Korean. Publishing precise, unbiased reporting across Politics, International Relations, Economics, Trade, Society, Diplomacy, and Military affairs.</p>
         </div>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item reveal">
         <div class="timeline-marker">
           <div class="timeline-dot"></div>
           <div class="timeline-phase" data-en="Near" data-kr="근미래">Near</div>
@@ -946,7 +1115,7 @@
           <p data-en="Expand NOPS News into Chinese, Russian, Japanese, and Spanish — bringing fact-based, opinion-free reporting to a truly global audience." data-kr="NOPS News를 중국어, 러시아어, 일본어, 스페인어로 확장하여 진정한 글로벌 독자에게 사실 기반, 의견 없는 보도를 전달합니다.">Expand NOPS News into Chinese, Russian, Japanese, and Spanish — bringing fact-based, opinion-free reporting to a truly global audience.</p>
         </div>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item reveal">
         <div class="timeline-marker">
           <div class="timeline-dot"></div>
           <div class="timeline-phase" data-en="Near" data-kr="근미래">Near</div>
@@ -957,7 +1126,7 @@
           <p data-en="Launch NOPS Report — in-depth investigative and analytical reporting that goes beyond the headlines, building NOPS into a credible, authoritative media institution." data-kr="NOPS Report를 출시합니다 — 헤드라인을 넘어서는 심층 조사 및 분석 보도로, NOPS를 신뢰할 수 있는 권위 있는 미디어 기관으로 구축합니다.">Launch NOPS Report — in-depth investigative and analytical reporting that goes beyond the headlines, building NOPS into a credible, authoritative media institution.</p>
         </div>
       </div>
-      <div class="timeline-item" style="margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08);">
+      <div class="timeline-item reveal" style="margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08);">
         <div class="timeline-marker">
           <div class="timeline-dot"></div>
           <div class="timeline-phase" data-en="Vision" data-kr="비전">Vision</div>
@@ -975,14 +1144,14 @@
 <!-- FOLLOW -->
 <section class="follow" id="follow">
   <div class="follow-inner">
-    <div>
+    <div class="reveal">
       <p class="section-label" data-en="Follow" data-kr="팔로우">Follow</p>
       <h2 class="section-title">Join the society</h2>
       <p style="color: var(--text-muted); line-height: 1.9; margin-top: 16px; font-size: 0.95rem;" data-en="NOPS publishes daily across Instagram in Korean and English. Follow for real-time, fact-based coverage of global events — no spin, no noise." data-kr="NOPS는 한국어와 영어로 인스타그램에 매일 게시합니다. 실시간 사실 기반 글로벌 이슈 보도를 팔로우하세요 — 왜곡 없음, 소음 없음.">
         NOPS publishes daily across Instagram in Korean and English. Follow for real-time, fact-based coverage of global events — no spin, no noise.
       </p>
     </div>
-    <div>
+    <div class="reveal">
       <div class="follow-accounts">
         <a href="https://instagram.com/nopsociety.en" class="account-link">
           <div class="account-badge">EN</div>
@@ -1002,6 +1171,8 @@
     </div>
   </div>
 </section>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
 <!-- FOOTER -->
 <footer>
@@ -1026,6 +1197,105 @@
     // Translate nav links separately (they have both data attrs)
     document.querySelectorAll('.nav-links a[data-en]').forEach(el => {
       el.textContent = el.getAttribute('data-' + currentLang);
+    });
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer  = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // ── Scroll progress bar ──
+  const progressBar = document.getElementById('scrollProgress');
+  function updateProgress() {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const max = h.scrollHeight - h.clientHeight;
+    progressBar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+  }
+  document.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // ── Back to top ──
+  const backToTop = document.getElementById('backToTop');
+  function updateBackToTop() {
+    backToTop.classList.toggle('visible', window.scrollY > 800);
+  }
+  document.addEventListener('scroll', updateBackToTop, { passive: true });
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+  updateBackToTop();
+
+  // ── Mobile nav toggle ──
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  }));
+
+  // ── Scroll reveal ──
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in-view'));
+  }
+
+  // ── Active nav link on scroll ──
+  const sections = ['mission', 'pillars', 'offerings', 'roadmap', 'follow']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+  if ('IntersectionObserver' in window && sections.length) {
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navAnchors.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+        }
+      });
+    }, { threshold: 0, rootMargin: '-45% 0px -45% 0px' });
+    sections.forEach(s => navObserver.observe(s));
+  }
+
+  // ── Cursor glow + magnetic buttons + pillar tilt (pointer devices, motion allowed) ──
+  if (finePointer && !reduceMotion) {
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', (e) => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+      glow.classList.add('active');
+    }, { passive: true });
+    document.addEventListener('mouseleave', () => glow.classList.remove('active'));
+
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.25}px, ${y * 0.4}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+
+    document.querySelectorAll('.pillar').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `perspective(700px) rotateX(${y * -8}deg) rotateY(${x * 8}deg) translateZ(4px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
     });
   }
 </script>
